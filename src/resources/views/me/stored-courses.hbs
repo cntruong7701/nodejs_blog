@@ -1,13 +1,34 @@
-<div class="mt-4">
-    <dir>
+<form name="container-form" class="mt-4" method="POST" action="courses/handle-form-actions">
+    <div>
         <h4>Khóa Học Của Tôi</h4>
-        <a href="/me/trash/courses">Thùng rác</a>
-    </dir>
+        <a href="/me/trash/courses">Thùng rác ({{deleteCount}})</a>
+        <div class="mt-4 d-flex align-items-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+                <label class="form-check-label" for="checkbox-all">
+                    Chọn Tất Cả
+                </label>
+            </div>
+
+            <select class="form-control form-control-sm checkbox-select-all-option" name="action" required>
+                <option value="">---Chọn---</option>
+                <option value="delete">Xóa</option>
+            </select>
+
+            <button class="btn btn-primary btn-sm check-all-submit-btn" disabled="disabled">Thực Hiện</button>
+        </div>
+    </div>
     <table class="table">
         <thead>
             <tr>
+                <th></th>
                 <th scope="col">#</th>
-                <th scope="col">Tên Khóa Học</th>
+                <th scope="col">
+                    Tên Khóa Học
+                    <a href="?_sort&column=name&type=desc">
+                        <i class="fa-solid fa-sort"></i>
+                    </a>
+                </th>
                 <th scope="col">Trình Độ</th>
                 <th scope="col">Thời Gian Tạo</th>
                 <th scope="col">Chức Năng</th>
@@ -16,6 +37,11 @@
         <tbody>
             {{#each courses}}
             <tr>
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="courseIds[]" value="{{this._id}}">
+                    </div>
+                </td>
                 <th scope="row">{{sum @index 1}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.level}}</td>
@@ -36,7 +62,7 @@
             {{/each}}
         </tbody>
     </table>
-</div>
+</form>
 
 {{!-- confirm delete course --}}
 <div class="modal fade" id="delete-course-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -69,6 +95,10 @@
         var courseId;
         var deleteForm = document.forms['delete-course-form'];
         var btnDeleteCourse = document.getElementById('btn-delete-course');
+        var checkboxAll = $('#checkbox-all');
+        var courseItemCheckbox = $('input[name="courseIds[]"]');
+        var checkAllSubmitBtn = $('.check-all-submit-btn');
+        var containerForm = document.forms['container-form'];
 
         //when dialog confirm clicked
         $('#delete-course-modal').on('show.bs.modal', function (e) {
@@ -80,6 +110,38 @@
         btnDeleteCourse.onclick = function () {
             deleteForm.action = '/courses/' + courseId + '?_method=DELETE';
             deleteForm.submit();
+        }
+
+        //checkbox all changed
+        checkboxAll.change(function() {
+            var isCheckedAll =  $(this).prop('checked');
+            courseItemCheckbox.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn();
+        })
+
+        // Course item checkbox changed
+        courseItemCheckbox.change(function() {
+            var isCheckedAll =  courseItemCheckbox.length === $('input[name="courseIds[]"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn();
+        });
+
+        //check all submit button clicked
+        checkAllSubmitBtn.on('submit', function(e) {
+            var isSubmitable = !$(this).hasClass('disabled');
+            if (!isSubmitable) {
+                e.preventDefault();
+            }
+        });
+
+        // re-render check all submit button
+        function renderCheckAllSubmitBtn(){
+            var checkCount = $('input[name="courseIds[]"]:checked').length;
+            if(checkCount > 0){
+                checkAllSubmitBtn.attr('disabled', false);
+            } else {
+                checkAllSubmitBtn.attr('disabled', true);
+            }
         }
     });
 </script>
