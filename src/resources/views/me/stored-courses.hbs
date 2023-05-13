@@ -21,8 +21,12 @@
     <table class="table">
         <thead>
             <tr>
-                <th></th>
-                <th scope="col">#</th>
+                
+                <th scope="col"></th>
+                <th scope="col">
+                    ID
+                    {{{sortable '_id' _sort}}}
+                </th>
                 <th scope="col">
                     Tên Khóa Học
                     {{{sortable 'name' _sort}}}
@@ -35,9 +39,9 @@
                     Thời Gian Tạo
                     {{{sortable 'createdAt' _sort}}}
                 </th>
-                <th scope="col">
+                {{!-- <th scope="col">
                     Chức Năng
-                </th>
+                </th> --}}
             </tr>
         </thead>
         <tbody>
@@ -48,7 +52,7 @@
                         <input class="form-check-input" type="checkbox" name="courseIds[]" value="{{this._id}}">
                     </div>
                 </td>
-                <th scope="row">{{sum @index 1}}</th>
+                <th scope="row">{{this._id}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.level}}</td>
                 <td>{{this.createdAt}}</td>
